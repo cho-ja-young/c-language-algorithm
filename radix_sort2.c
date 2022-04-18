@@ -1,14 +1,15 @@
 #include<stdio.h>
 #include<stdlib.h> // rand() 함수 포함 라이브러리 
 #include<time.h> // time() 함수 포함 라이브러리
+#include "ListBaseQueue.h"
+using namespace std;
 
-
-struct nodetype
-{
-    keytype key;
-    nodetype* link;
-}
-typedef nodetype* node_pointer;
+//struct nodetype
+//{
+//    keytype key;
+//    nodetype* link;
+//}
+//typedef nodetype* node_pointer;
 
 
 // 기수 정렬 
@@ -16,11 +17,13 @@ typedef nodetype* node_pointer;
 //각 정수에서 십진수의 최대 개수를 나타내는 정수
 void radix_sort (int array[], int length, int numdigits)
 {
-    int i, ex, max;
-    int k = 0;
+	int i;
+    int numdigits = get_max_radix(array, size);
+    
+    queue<int> Q[10]; // 큐 10개 (1 ~ 9자리) 
     // node_pointer list[0...9];
 
-    for (i = 1; i <= numdigits; i++) {
+    for (i = 1; i <= numdigits; i*=10) {
         distribute(masterlist, list, i);
         coalesce(masterlist, list);
     }
@@ -28,30 +31,33 @@ void radix_sort (int array[], int length, int numdigits)
 
 void distribute (node_pointer& masterlist, node_pointer& list, index i) 
 {
-    int j;
-    node_pointer p;
-
-    for (j=0; j <= 9; j++) {
-        list[j] = NULL; // 더미를 비운다. 
-    }
-    p = masterlist;
-    while (p != NULL) {
-        j = value of ith digit (from the right) in p -> key;
-        // j = p -> key에서 (오른쪽) i번째 숫자의 값
-        link p to the end of list[j];
-        // p를 list[j]의 끝에 링크;
-        p = p -> link;
-    }
+    for(int j = 0 ; j < size ; j++){
+	
+			int k = 0; 
+			// 자리수 
+					
+			if(array[j] >= i){ 
+				k = (array[j] / i) % 10;
+				// (1, 10, 100)보다 크면 계산하고 
+				// 작으면 0으로 처리함 
+				// (e.g. 10의자리에서 2 -> 02 -> 0) 
+			}
+			
+			Q[k].push(array[j]);
+		}
 }
 
 void coalesce (node_pointer& masterlist, node_pointer& list)
 {
-    index j;
-
-    masterlist = NULL; // masterlist를 비운다. 
-    for (j=0; j <= 9; j++) {
-        // list[j]에 있는 마디들을 masterlist의 끝에 링크;
-    }
+    int idx = 0;
+		for(int j = 0 ; j < 10 ; j++){
+			
+			while(!Q[j].empty()){ 
+				array[idx] = Q[j].front();
+				Q[j].pop();
+				idx++;
+			}
+		}
 }
 
 
@@ -87,7 +93,7 @@ int main(void)
         start = (double)clock() / CLOCKS_PER_SEC;
         
         // 정렬 함수 호출 
-        radix_sort(array, 0, n-1); // 100, 500, 1000, 5000, 10000
+        radix_sort(array, length, n); // 100, 500, 1000, 5000, 10000
 
          // 정렬 끝난 시간 
         end = (double)clock() / CLOCKS_PER_SEC;
